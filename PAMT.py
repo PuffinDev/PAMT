@@ -7,9 +7,31 @@ from progress.bar import Bar
 
 # Python Anti-Malware Toolkit
 
-root = "/"
-patterns = ['.py']
-files = []
+root = "/"  #'/' for linux  'C:\' for windows
+patterns = ['*.py']
+matching_files = []
+dangerous_files = []
+
+bad_content = b'import threading' #Files that contain this text will be blacklisted
+
+banner = \
+'\u001b[34;1m' + """
+-------------------------------
+  _____        __  __ _______ 
+ |  __ \ /\   |  \/  |__   __|
+ | |__) /  \  | \  / |  | |   
+ |  ___/ /\ \ | |\/| |  | |   
+ | |  / ____ \| |  | |  | |   
+ |_| /_/    \_\_|  |_|  |_|   
+
+ Python Anti-Malware Toolkit
+-------------------------------
+
+
+""" + '\u001b[0m'
+
+print(banner)
+
 
 def scan():
     global files
@@ -17,34 +39,45 @@ def scan():
     #scan filesystem
 
     filecount = 0
-
-    for path, subdirs, files in os.walk(root):
+    print("Initialising...")
+    for path, subdirs, files in os.walk(root):  #Count files for progress bar
         for name in files:
             filecount += 1
-
-    print(filecount)
+    print('\n')
 
     bar = Bar('Scanning filesystem', max=filecount)
-
-    for path, subdirs, files in os.walk(root):
+    previous = ""
+    for path, subdirs, files in os.walk(root):  #Find files with specified patterns
         for name in files:
-            #print("Scanning " + name)
             for pattern in patterns:
                 if fnmatch.fnmatch(name, pattern):
-                    files.append(os.path.join(path, name))
+                    matching_files.append(os.path.join(path, name))
             bar.next()
     print('\n')
-    
-    bar = Bar('Identifying threats', max=len(files))
 
-    for file in files:
-        with open(file) as f:
-            if 'import threading' in f.read():
-                print("Malware detected in '" + file + "'")
+    scan_files(matching_files)
+    
     
 
-def scan_file(file):
-    #scan invividual file
-    pass
+def scan_files(files):
+    #scan list of filenames
+    bar2 = Bar('Identifying threats', max=len(files))
+
+    for file in files:  #Scan files for a string
+        try:
+            with open(file, 'rb') as f:
+                if bad_content in f.read():
+                    dangerous_files.append(file)
+        except :
+            pass
+        bar2.next()
+
+    
+    with open("output.txt", 'w+') as f:
+        for file in dangerous_files:
+            f.write(file + '\n')
+
+    print('\u001b[33m' + '\n\n' + str(len(dangerous_files)) + " Malicious files detected" + '\u001b[0m')
+    print("See the full list of files in output.txt")
 
 scan()
