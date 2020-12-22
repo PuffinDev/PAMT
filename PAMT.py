@@ -8,11 +8,11 @@ from progress.bar import Bar
 # Python Anti-Malware Toolkit
 
 root = "/"  #'/' for linux  'C:\' for windows
-patterns = ['*.py']
+patterns = ['*.py', '*.sh']
 matching_files = []
 dangerous_files = []
 
-bad_content = b'import threading' #Files that contain this text will be blacklisted
+bad_content = b'rm -rf' #Files that contain this text will be blacklisted
 
 banner = \
 '\u001b[34;1m' + """
@@ -66,16 +66,23 @@ def scan_files(files):
     for file in files:  #Scan files for a string
         try:
             with open(file, 'rb') as f:
-                if bad_content in f.read():
-                    dangerous_files.append(file)
-        except :
+                with open("database/lines.json", 'r') as f2:
+                    database = json.load(f2) 
+
+                    for bad_content in database.values():
+                        bad_content = bad_content[0][0]
+                        bad_content = bytes(bad_content, 'utf-8')
+                        
+                        if bytes(bad_content) in f.read():
+                            dangerous_files.append([bad_content.decode('utf-8'), file])
+        except FileNotFoundError:
             pass
         bar2.next()
 
     
     with open("output.txt", 'w+') as f:
         for file in dangerous_files:
-            f.write(file + '\n')
+            f.write(file[0] +  "  --> " + file[1] + '\n')
 
     print('\u001b[33m' + '\n\n' + str(len(dangerous_files)) + " Malicious files detected" + '\u001b[0m')
     print("See the full list of files in output.txt")

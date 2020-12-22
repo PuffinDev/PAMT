@@ -1,0 +1,14 @@
+{   
+    "linux.bash.removedir": [["rm -rf"], 0],
+    "linux.bash.removeroot": [["rm -rf /"], 1],
+    "linux.bash.syscrash": [["%0|%0"], 1],
+    "linux.python.system": [["os.system("], 0],
+    "python.screencapture": [["sct.shot()"], 0],
+    "python.webcamcapture": [["cv2.VideoCapture"], 0],
+    "python.ipgrabber": [["requests.get('http://whatismyip.akamai.com/')"], 0],
+    "python.constantfork1": [["while True: os.fork()"], 1],
+    "python.constantfork2": [["while 1: os.fork()"], 1],
+    "python.keylogger1": [["GetAsyncKeyState("], 0],
+    "python.pywin32": [["import pywin32"], 0]
+}
+    
