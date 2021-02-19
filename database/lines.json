@@ -1,5 +1,4 @@
 {   
-    "linux.bash.removedir": [["rm -rf"], 0],
     "linux.bash.removeroot": [["rm -rf /"], 1],
     "linux.bash.syscrash": [["%0|%0"], 1],
     "linux.python.system": [["os.system("], 0],
